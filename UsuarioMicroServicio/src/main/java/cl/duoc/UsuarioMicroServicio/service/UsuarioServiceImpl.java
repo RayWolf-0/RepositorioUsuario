@@ -22,7 +22,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
-    public Usuario obtenerPorId(Long id) {
+    public Usuario obtenerPorId(int id) {
         return usuarioRepository.findById(id).orElse(null);
     }
 
@@ -32,7 +32,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
-    public void eliminarUsuario(Long id) {
+    public void eliminarUsuario(int id) {
         usuarioRepository.deleteById(id);
     }
 
