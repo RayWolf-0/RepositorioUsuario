@@ -1,5 +1,6 @@
 package cl.duoc.UsuarioMicroServicio.controller;
 
+import cl.duoc.UsuarioMicroServicio.Assembler.usuarioassembler;
 import cl.duoc.UsuarioMicroServicio.entity.Usuario;
 import cl.duoc.UsuarioMicroServicio.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,6 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +25,9 @@ public class UsuarioController {
 
     @Autowired
     private UsuarioService usuarioService;
+
+    @Autowired
+    private usuarioassembler assembler;
 
     //endpoint para obtener todos los usuarios
     @GetMapping
@@ -53,9 +58,9 @@ public class UsuarioController {
                 schema = @Schema(type = "string", example = "No se encuentran usuarios")))
     })
     @GetMapping("/{id}")
-    public ResponseEntity<Usuario> obtenerPorId(@PathVariable int id) {
+    public ResponseEntity<EntityModel<Usuario>> obtenerPorId(@PathVariable int id) {
         Usuario usuario = usuarioService.obtenerPorId(id);
-        return usuario != null ? ResponseEntity.ok(usuario) : ResponseEntity.notFound().build();
+        return usuario != null ? ResponseEntity.ok(assembler.toModel(usuario)) : ResponseEntity.notFound().build();
     }
 
     //endpoint para guardar un usuario
@@ -89,11 +94,11 @@ public class UsuarioController {
         @ApiResponse(responseCode = "500", description = "usuaio no esta registrada",
         content = @Content(schema = @Schema(type = "String", example = "usuario no esta registrado")))
     })
-    public ResponseEntity<Usuario> actualizarUsuario(@PathVariable int id, @RequestBody Usuario usuarioActualizado) {
+    public ResponseEntity<EntityModel<Usuario>> actualizarUsuario(@PathVariable int id, @RequestBody Usuario usuarioActualizado) {
         Usuario usuarioExistente = usuarioService.obtenerPorId(id);
         if (usuarioExistente != null) {
             usuarioActualizado.setIdUsuario(id);
-            return ResponseEntity.ok(usuarioService.guardarUsuario(usuarioActualizado));
+            return ResponseEntity.ok(assembler.toModel(usuarioExistente));
         } else {
             return ResponseEntity.notFound().build();
         }
